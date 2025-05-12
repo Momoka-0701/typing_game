@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タイピングゲーム</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+
+        #word {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        input {
+            font-size: 20px;
+            padding: 5px;
+        }
+
+        #timer {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+
+        .game-over {
+            font-size: 30px;
+            color: red;
+        }
+
+        #score {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+
+        #start-btn {
+            font-size: 18px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>タイピングゲーム</h1>
+    <p id="word"></p>
+    <input type="text" id="input" disabled autofocus>
+    <p id="timer">残り時間: <span id="time">30</span>秒</p>
+    <p id="score">スコア: <span id="current-score">0</span></p>
+    <p id="game-status"></p>
+    <button id="start-btn">ゲームスタート</button>
+
+    <script>
+        const words = ["apple", "banana", "cherry", "grape", "orange"];
+        let currentWord = "";
+        let timeLeft = 30;  // 制限時間30秒
+        let score = 0;  // 初期スコア
+        let timerInterval;
+        let usedWords = [];  // 使用済みの単語を記録する配列
+
+        function newWord() {
+            // 使用済みの単語リストからまだ出題していない単語を選ぶ
+            if (usedWords.length === words.length) {
+                // 全ての単語が出題されたら、リセットして再度使えるようにする
+                usedWords = [];
+            }
+
+            // 出題する単語をランダムに選び、使用済みリストに追加
+            let randomWord;
+            do {
+                randomWord = words[Math.floor(Math.random() * words.length)];
+            } while (usedWords.includes(randomWord));  // 同じ単語が出題されないようにする
+
+            currentWord = randomWord;
+            usedWords.push(currentWord);  // 使用済みリストに追加
+            document.getElementById("word").textContent = currentWord;
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(function() {
+                timeLeft--;
+                document.getElementById("time").textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById("game-status").textContent = "ゲームオーバー！";
+                    document.getElementById("game-status").classList.add("game-over");
+                    document.getElementById("input").disabled = true;  // 入力欄を無効化
+                }
+            }, 1000);
+        }
+
+        document.getElementById("input").addEventListener("input", function() {
+            if (this.value === currentWord) {
+                score += 10;  // 単語ごとに10ポイント加算
+                document.getElementById("current-score").textContent = score;
+                this.value = "";  // 入力欄をリセット
+                newWord();  // 新しい単語を表示
+            }
+        });
+
+        // ゲームスタートボタンが押されたとき
+        document.getElementById("start-btn").addEventListener("click", function() {
+            // ボタンを無効化
+            document.getElementById("start-btn").disabled = true;
+            // 入力欄を有効化
+            document.getElementById("input").disabled = false;
+            // ゲーム開始
+            newWord();
+            startTimer();
+        });
+    </script>
+</body>
+</html>
